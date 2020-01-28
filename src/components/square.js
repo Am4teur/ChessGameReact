@@ -1,18 +1,12 @@
 import React from "react";
 
 export default class Square extends React.Component {
-  constructor(props) {
-    super(props);
-
-  }
-
   render() {
     return (
-      <button
-        className="square"
+      <button className="square"
         style={{
           backgroundColor: this.props.bgcolor,
-          color: "#fff"
+          color: "#ffffff" //white
         }}
         onClick={this.props.onClick}
       >

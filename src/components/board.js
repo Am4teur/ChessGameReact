@@ -2,17 +2,12 @@ import React from "react";
 import Square from './square.js'
 
 export default class Board extends React.Component {
-  constructor(props) {
-    super(props);
-
-  }
-
 	renderSquare(i, j) {
 		return (
 			<Square
 				value={this.props.squares[i][j]}
 				bgcolor={(i % 2 === 0 ? i * 10 + j : i * 10 + j + 1) % 2 === 0 ? "#ffffff" : "#000000"}
-				onClick={() => this.props.onClick(i)}
+				onClick={() => this.props.onClick(i, j)}                       // white    :  black
 			/>
 		)
 	}

@@ -6,26 +6,46 @@ var NROWS = 8;
 var NCOLS = 8;
 
 
-function matrix(rows, cols, defaultValue){
-  var arr = [];
-  for(var i=0; i < rows; i++){
-      arr.push([]);
-      arr[i].push( new Array(cols));
-      for(var j=0; j < cols; j++){
-        arr[i][j] = defaultValue;
-      }
-  }
-  return arr;
-}
-
 export default class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       squares: this.initBoard(),
       turn: 0,
-      player: "white",
+      playerTurn: 0,
     };
+  }
+
+  handleClick(i, j) {
+    //select new peace OR make a move with a selected pice
+    let sqs = this.state.squares.slice();
+    sqs[i][j] = "hand";
+    this.setState({
+      squares: sqs,
+      turn: 0,
+      playerTurn: this.state.playerTurn === 0 ? 1 : 0,
+    });
+  }
+
+  render() {
+    const squares = this.state.squares.slice();
+    let status = "Next player: " + this.state.playerTurn;
+    const moves = "No moves";
+
+    return (
+      <div className="game">
+        <div className="game-board">
+          <Board
+            squares = {squares}
+            onClick = {(i, j) => this.handleClick(i, j)}
+          />
+        </div>
+        <div className="game-info">
+          <div>{status}</div>
+          <ol>{moves}</ol>
+        </div>
+      </div>
+    );
   }
 
   initBoard() {
@@ -55,35 +75,20 @@ export default class Game extends React.Component {
 
     return initialBoard;
   }
+}
 
-  handleClick(i, j) {
-    let sqs = this.state.squares.slice();
-    sqs[i][j] = "hand";
-    this.setState({
-      squares: sqs,
-      turn: 0,
-      player: "white",
-    });
+/* ============================== */
+/* HELPER FUNCTION                */
+/* ============================== */
+
+function matrix(rows, cols, defaultValue){
+  var arr = [];
+  for(var i=0; i < rows; i++){
+      arr.push([]);
+      arr[i].push( new Array(cols));
+      for(var j=0; j < cols; j++){
+        arr[i][j] = defaultValue;
+      }
   }
-
-  render() {
-    const squares = this.state.squares.slice();
-    let status = "Next player: " + this.state.player;
-    const moves = "No moves";
-
-    return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares = {squares}
-            onClick = {(i, j) => this.handleClick(i, j)}
-          />
-        </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{moves}</ol>
-        </div>
-      </div>
-    );
-  }
+  return arr;
 }
