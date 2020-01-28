@@ -2,6 +2,11 @@ import React from "react";
 import Square from './square.js'
 
 export default class Board extends React.Component {
+  constructor(props) {
+    super(props);
+
+  }
+
 	renderSquare(i, j) {
 		return (
 			<Square

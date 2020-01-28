@@ -22,12 +22,9 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      history: [{
-        squares: this.initBoard(),
-      }],
+      squares: this.initBoard(),
       turn: 0,
       player: "white",
-      selected: null,
     };
   }
 
@@ -60,22 +57,17 @@ export default class Game extends React.Component {
   }
 
   handleClick(i, j) {
-    const history = this.state.history.slice(0, this.state.turn + 1);
-    const current = history[history.length -1];
-
-    let sqs = current.squares.slice();
-    sqs[i] = (this.state.turn++%2 === 0 ? "X" : "O");
+    let sqs = this.state.squares.slice();
+    sqs[i][j] = "hand";
     this.setState({
-      history: history.concat([{
-        squares: sqs
-      }]),
-      turn: history.length,
+      squares: sqs,
+      turn: 0,
+      player: "white",
     });
   }
 
   render() {
-    const history = this.state.history;
-    const current = history[this.state.turn];
+    const squares = this.state.squares.slice();
     let status = "Next player: " + this.state.player;
     const moves = "No moves";
 
@@ -83,7 +75,7 @@ export default class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            squares = {current.squares}
+            squares = {squares}
             onClick = {(i, j) => this.handleClick(i, j)}
           />
         </div>
