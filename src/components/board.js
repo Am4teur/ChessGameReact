@@ -2,26 +2,32 @@ import React from "react";
 import Square from './square.js'
 
 export default class Board extends React.Component {
-	renderSquare(i) {
+	renderSquare(i, j, bgColor, sq) {
 		return (
 			<Square
-			piece={this.props.squares[i] ? this.props.squares[i] : "00"}
-			bgcolor={(Math.floor(i/8)%2===0 && i%2===0) || (Math.floor(i/8)%2===1 && i%2===1)  ? "background-light" : "background-dark"}
-			onClick={() => this.props.onClick(i)}
+			piece={sq ? sq : "00"}
+			bgcolor={bgColor}
+			onClick={() => this.props.onClick(i, j)}
 			/>
 		)
 	}
 
 	render() {
-		const squares = this.props.squares;
-		const board = new Array(squares.length).fill(null);
+		const squares = this.props.squares.slice();
 
-		for(let i = 0; i < squares.length ; ++i) {
-			board.push(this.renderSquare(i))
-		}
+    const board = [];
+    for(let i = 0; i < squares.length; i++){
+      const boardRows = [];
+      for(let j = 0; j < squares.length; j++){
+        const bgColor = (i % 2 === 0 ? i * 10 + j : i * 10 + j + 1) % 2 === 0  ? "background-light" : "background-dark";
+        boardRows.push(this.renderSquare(i, j, bgColor, squares[i][j]));
+      }
+		board.push(<div className="board-row">{boardRows}</div>)
+    }
+
 
 		return (
-			<div className="board-row">
+			<div className="board">
 				{board}
 			</div>
 		);
