@@ -1,9 +1,10 @@
 import React from "react";
 import Board from './board.js';
+import King from "../pieces/king.js";
+
 
 /* CONSTANTS */
-var NROWS = 8;
-var NCOLS = 8;
+var NSQUARES = 64;
 
 
 export default class Game extends React.Component {
@@ -16,10 +17,10 @@ export default class Game extends React.Component {
     };
   }
 
-  handleClick(i, j) {
+  handleClick(i) {
     //select new peace OR make a move with a selected pice
     let sqs = this.state.squares.slice();
-    sqs[i][j] = "hand";
+    sqs[i] = "hand";
     this.setState({
       squares: sqs,
       turn: 0,
@@ -28,7 +29,7 @@ export default class Game extends React.Component {
   }
 
   render() {
-    const squares = this.state.squares.slice();
+    //const squares = this.state.squares.slice();
     let status = "Next player: " + this.state.playerTurn;
     const moves = "No moves";
 
@@ -36,8 +37,8 @@ export default class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-            squares = {squares}
-            onClick = {(i, j) => this.handleClick(i, j)}
+          squares = {this.state.squares}
+          onClick = {(i) => this.handleClick(i)}
           />
         </div>
         <div className="game-info">
@@ -49,31 +50,34 @@ export default class Game extends React.Component {
   }
 
   initBoard() {
-    let initialBoard = matrix(NROWS, NCOLS, null);
+    let squares = Array(NSQUARES).fill(null);
 
-    initialBoard[0][0] = "Rook";//<img class='piece' src={ require('../chessPieces/black_pawn.png') } />;
-    initialBoard[0][7] = "Rook";
-    initialBoard[7][0] = "Rook";
-    initialBoard[7][7] = "Rook";
-    initialBoard[0][1] = "Knight";
-    initialBoard[0][6] = "Knight";
-    initialBoard[7][1] = "Knight";
-    initialBoard[7][6] = "Knight";
-    initialBoard[0][2] = "Bishop";
-    initialBoard[0][5] = "Bishop";
-    initialBoard[7][2] = "Bishop";
-    initialBoard[7][5] = "Bishop";
-    initialBoard[0][3] = "Queen";
-    initialBoard[0][4] = "King";
-    initialBoard[7][3] = "Queen";
-    initialBoard[7][4] = "King";
-
-    for(let i = 0; i < initialBoard[0].length ; ++i) {
-      initialBoard[1][i] = "Pawn";
-      initialBoard[6][i] = "Pawn";
+    for(let i = 8; i < 16; i++){
+      squares[i] = new King(2);
+      squares[i+40] = new King(1);
     }
-
-    return initialBoard;
+    squares[0] = new King(2);
+    squares[7] = new King(2);
+    squares[56] = new King(1);
+    squares[63] = new King(1);
+  
+    squares[1] = new King(2);
+    squares[6] = new King(2);
+    squares[57] = new King(1);
+    squares[62] = new King(1);
+  
+    squares[2] = new King(2);
+    squares[5] = new King(2);
+    squares[58] = new King(1);
+    squares[61] = new King(1);
+  
+    squares[3] = new King(2);
+    squares[4] = new King(2);
+  
+    squares[59] = new King(1);
+    squares[60] = new King(1);
+  
+    return squares;
   }
 }
 

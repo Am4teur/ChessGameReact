@@ -31,14 +31,15 @@ ol, ul {
   padding: 0;
   text-align: center;
   width: 55px;
+  color: #ffffff;
 }
 
-.background-white {
-  background: #fff;
+.background-light {
+  background: #ffffff;
 }
 
-.background-black {
-  background: #000;
+.background-dark {
+  background: #000000;
 }
 
 .square:focus {
