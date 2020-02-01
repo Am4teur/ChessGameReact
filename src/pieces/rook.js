@@ -29,7 +29,7 @@ export default class Rook extends Piece {
         }
         break;
       }
-      moves.push([srci+i, srcj])
+      moves.push([srci+i, srcj]);
     }
     for(let i = 1; i < srci+1 ; ++i) {
       if(boardCopy[srci-i][srcj]) {
@@ -38,7 +38,7 @@ export default class Rook extends Piece {
         }
         break;
       }
-      moves.push([srci-i, srcj])
+      moves.push([srci-i, srcj]);
     }
     for(let i = 1; i < board.length - srcj ; ++i) {
       if(boardCopy[srci][srcj+i]) {
@@ -47,7 +47,7 @@ export default class Rook extends Piece {
         }
         break;
       }
-      moves.push([srci, srcj+i])
+      moves.push([srci, srcj+i]);
     }
     for(let i = 1; i < srcj+1 ; ++i) {
       if(boardCopy[srci][srcj-i]) {
@@ -56,7 +56,7 @@ export default class Rook extends Piece {
         }
         break;
       }
-      moves.push([srci, srcj-i])
+      moves.push([srci, srcj-i]);
     }
 
     return moves;

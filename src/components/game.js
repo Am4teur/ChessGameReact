@@ -59,7 +59,7 @@ export default class Game extends React.Component {
         selectedPiecej: null,
       });
     }
-    else if(sqs[i][j] && sqs[i][j].player == this.state.playerTurn){ //select piece
+    else if(sqs[i][j] && sqs[i][j].player === this.state.playerTurn){ //select piece
       this.setState({
         selectedPiece: sqs[i][j],
         selectedPiecei: i,

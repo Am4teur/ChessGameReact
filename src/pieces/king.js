@@ -6,22 +6,45 @@ export default class King extends Piece {
                                 : "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg"));
   }
 
-  isMovePossible(src, dest){
-    return (src - 9 === dest || 
-      src - 8 === dest || 
-      src - 7 === dest || 
-      src + 1 === dest || 
-      src + 9 === dest || 
-      src + 8 === dest || 
-      src + 7 === dest || 
-      src - 1 === dest);
+  canMove(srci, srcj, desti, destj, board) {
+    const moves = this.computeMoves(srci, srcj, board);
+
+    for(let i = 0; i < moves.length; ++i) {
+      if(moves[i][0]===desti && moves[i][1]===destj) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  /**
-   * always returns empty array because of one step
-   * @return {[]}
-   */
-  getSrcToDestPath(src, dest){
-    return [];
+  computeMoves(srci, srcj, board) {
+    let moves = [];
+    const boardCopy = board.slice();
+
+    for(let i = -1; i < 2  ; ++i) {
+      for(let j = -1; j < 2 ; ++j) {
+        if(i!==0 && j!==0);
+          moves.push([srci+i, srcj+j]);
+      }
+    }
+
+    //remove out of the board moves
+    for(let i = 0; i < moves.length ; ++i) {
+      for(let j = 0; j < 2 ; ++j) {
+        if(moves[i][j] > 7 || moves[i][j] < 0) {
+          moves.splice(i,1);
+          i--;
+          break;
+        }
+        else if(boardCopy[moves[i][0]][moves[i][1]] && boardCopy[moves[i][0]][moves[i][1]].player === this.player) {
+          moves.splice(i,1);
+          i--;
+          break;
+        }
+      }
+    }
+
+    return moves;
   }
 }

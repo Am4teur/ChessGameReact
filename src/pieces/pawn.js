@@ -59,6 +59,7 @@ export default class Pawn extends Piece {
         if(moves[i][j] > 7 || moves[i][j] < 0) {
           moves.splice(i,1);
           i--;
+          break;
         }
       }
     }
