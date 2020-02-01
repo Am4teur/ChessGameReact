@@ -21,18 +21,52 @@ export default class Game extends React.Component {
       squares: this.initBoard(),
       turn: 0,
       playerTurn: 0,
+      selectedPiece: null,
+      selectedPiecei: null,
+      selectedPiecej: null,
     };
   }
 
   handleClick(i, j) {
     //select new peace OR make a move with a selected pice
+    /*
+    select piece from player turn
+      select where to go
+
+
+    select nothing -> nothing
+
+    select piece from other player -> nothing
+    */
     let sqs = this.state.squares.slice();
-    sqs[i][j] = "hand";
-    this.setState({
-      squares: sqs,
-      turn: 0,
-      playerTurn: this.state.playerTurn === 0 ? 1 : 0,
-    });
+    const selp = this.state.selectedPiece;
+    const seli = this.state.selectedPiecei;
+    const selj = this.state.selectedPiecej;
+
+    if(selp) { //do something with pice selected
+      if(selp.canMove(seli, selj, i, j, sqs)) {
+        sqs[i][j]=sqs[seli][selj];
+        sqs[seli][selj]=null;
+        this.setState({
+          squares: sqs,
+          turn: this.state.turn+1,
+          playerTurn: this.state.playerTurn === 0 ? 1 : 0,
+        });
+      } //(at least) this 2 lines should be atomic (=>lock)
+      this.setState({
+        selectedPiece: null,
+        selectedPiecei: null,
+        selectedPiecej: null,
+      });
+    }
+    else if(sqs[i][j] && sqs[i][j].player == this.state.playerTurn){ //select piece
+      this.setState({
+        selectedPiece: sqs[i][j],
+        selectedPiecei: i,
+        selectedPiecej: j,
+      });
+      console.log(sqs[i][j].computeMoves(i, j, sqs));
+    }
   }
 
   render() {
