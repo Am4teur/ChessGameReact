@@ -22,7 +22,7 @@ export default class Bishop extends Piece {
     let moves = [];
     const boardCopy = board.slice();
 
-    for(let i = 1; i < board.length - srci && i < board.length - srcj ; ++i) {
+    for(let i = 1; i < Math.min(board.length - srci, board.length - srcj) ; ++i) {
       if(boardCopy[srci+i][srcj+i]) {
         if(boardCopy[srci+i][srcj+i].player !== boardCopy[srci][srcj].player) {
           moves.push([srci+i, srcj+i]);
@@ -31,7 +31,7 @@ export default class Bishop extends Piece {
       }
       moves.push([srci+i, srcj+i]);
     }
-    for(let i = 1; i < srci+1 && i < srcj+1 ; ++i) {
+    for(let i = 1; i < Math.min(srci+1, srcj+1) ; ++i) {
       if(boardCopy[srci-i][srcj-i]) {
         if(boardCopy[srci-i][srcj-i].player !== boardCopy[srci][srcj].player) {
           moves.push([srci-i, srcj-i]);
@@ -40,7 +40,7 @@ export default class Bishop extends Piece {
       }
       moves.push([srci-i, srcj-i]);
     }
-    for(let i = 1; i < srci+1 && i < board.length - srcj ; ++i) {
+    for(let i = 1; i < Math.min(srci+1, board.length - srcj) ; ++i) {
       if(boardCopy[srci-i][srcj+i]) {
         if(boardCopy[srci-i][srcj+i].player !== boardCopy[srci][srcj].player) {
           moves.push([srci-i, srcj+i]);
@@ -49,10 +49,10 @@ export default class Bishop extends Piece {
       }
       moves.push([srci-i, srcj+i]);
     }
-    for(let i = 1; i < board.length - srci && i < srcj+1 ; ++i) {
+    for(let i = 1; i < Math.min(board.length - srci, srcj+1) ; ++i) {
       if(boardCopy[srci+i][srcj-i]) {
         if(boardCopy[srci+i][srcj-i].player !== boardCopy[srci][srcj].player) {
-          moves.push([srci+i, srcj+i]);
+          moves.push([srci+i, srcj-i]);
         }
         break;
       }
