@@ -12,6 +12,7 @@ import Pawn from "../pieces/pawn.js";
 /* CONSTANTS */
 var NROWS = 8;
 var NCOLS = 8;
+var possibleMoves = [];
 
 
 export default class Game extends React.Component {
@@ -24,34 +25,30 @@ export default class Game extends React.Component {
       selectedPiece: null,
       selectedPiecei: null,
       selectedPiecej: null,
+
+      enPassantRight: null, //[srci, srcj, desti, destj]
+      enPassantLeft: null,
     };
   }
 
   handleClick(i, j) {
     //select new peace OR make a move with a selected pice
-    /*
-    select piece from player turn
-      select where to go
-
-
-    select nothing -> nothing
-
-    select piece from other player -> nothing
-    */
     let sqs = this.state.squares.slice();
     const selp = this.state.selectedPiece;
     const seli = this.state.selectedPiecei;
     const selj = this.state.selectedPiecej;
 
-    if(selp) { //do something with pice selected
-      if(selp.canMove(seli, selj, i, j, sqs)) {
-        sqs[i][j]=sqs[seli][selj];
-        sqs[seli][selj]=null;
+    if(selp) { //do something with piece selected
+      if(selp.canMove(seli, selj, i, j, sqs) || this.canEnPassant(seli, selj, i, j, sqs)) {
+        sqs[i][j] = sqs[seli][selj];
+        sqs[seli][selj] = null;
         this.setState({
           squares: sqs,
           turn: this.state.turn+1,
           playerTurn: this.state.playerTurn === 0 ? 1 : 0,
         });
+        this.removeEnPassant();
+        this.addEnPassant(selp, i, j, sqs);
       } //(at least) this 2 lines should be atomic (=>lock)
       this.setState({
         selectedPiece: null,
@@ -65,7 +62,10 @@ export default class Game extends React.Component {
         selectedPiecei: i,
         selectedPiecej: j,
       });
-      console.log(sqs[i][j].computeMoves(i, j, sqs));
+      possibleMoves = sqs[i][j].computeMoves(i, j, sqs);
+      console.log(possibleMoves);
+      let test = [[1,1], [0,1]];
+      console.log([1,1] in test);
     }
   }
 
@@ -79,6 +79,7 @@ export default class Game extends React.Component {
         <div className="game-board">
           <Board
           squares = {this.state.squares}
+          possibleMoves = {possibleMoves}
           onClick = {(i, j) => this.handleClick(i, j)}
           />
         </div>
@@ -116,6 +117,36 @@ export default class Game extends React.Component {
     }
 
     return initialBoard;
+  }
+
+  removeEnPassant() {
+    this.setState({
+      enPassantRight: null,
+      enPassantLeft: null,
+    });
+  }
+  
+  addEnPassant(lastPiecePlayed, desti, destj, board) {
+    if(lastPiecePlayed.constructor.name==="Pawn") {
+      console.log('passei');
+      this.setState({
+        enPassantRight: lastPiecePlayed.addEnPassantToOthers(desti, destj, board)[0], //[srci, srcj, desti, destj]
+        enPassantLeft: lastPiecePlayed.addEnPassantToOthers(desti, destj, board)[1],
+      });
+    }
+  }
+  
+  canEnPassant(srci, srcj, desti, destj, sqs) {
+    const enPR = this.state.enPassantRight;
+    const enPL = this.state.enPassantLeft;
+  
+    if(enPR && enPR[0]===srci && enPR[1]===srcj && enPR[2]===desti && enPR[3]===destj) {
+      return true;
+    }
+    if(enPL && enPL[0]===srci && enPL[1]===srcj && enPL[2]===desti && enPL[3]===destj) {
+      return true;
+    }
+    return false;
   }
 }
 
