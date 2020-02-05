@@ -12,7 +12,6 @@ import Pawn from "../pieces/pawn.js";
 /* CONSTANTS */
 var NROWS = 8;
 var NCOLS = 8;
-var possibleMoves = [];
 
 
 export default class Game extends React.Component {
@@ -21,13 +20,11 @@ export default class Game extends React.Component {
     this.state = {
       squares: this.initBoard(),
       turn: 0,
-      playerTurn: 0,
+      playerTurn: 0,  //could be derived from this.state.turn but its more readable like this
       selectedPiece: null,
       selectedPiecei: null,
       selectedPiecej: null,
-
-      enPassantRight: null, //[srci, srcj, desti, destj]
-      enPassantLeft: null,
+      possibleMoves: [],
     };
   }
 
@@ -39,21 +36,30 @@ export default class Game extends React.Component {
     const selj = this.state.selectedPiecej;
 
     if(selp) { //do something with piece selected
-      if(selp.canMove(seli, selj, i, j, sqs) || this.canEnPassant(seli, selj, i, j, sqs)) {
-        sqs[i][j] = sqs[seli][selj];
-        sqs[seli][selj] = null;
+      this.clearEnPassant(sqs);
+      if(selp.canMove(seli, selj, i, j, sqs)) {
+        const sqfull = sqs[i][j] ? true : false;
+        sqs[i][j] = sqs[seli][selj]; //(at least) this 2 lines should be atomic (=>lock)
+        sqs[seli][selj] = null;      //(at least) this 2 lines should be atomic (=>lock)
+
+        const p = this.state.playerTurn===0 ? -1 : 1;
+        if(this.removeEnPassantPiece(selp, sqfull, sqs)) {
+          sqs[i+p][j] = null;
+        }
+
         this.setState({
           squares: sqs,
           turn: this.state.turn+1,
           playerTurn: this.state.playerTurn === 0 ? 1 : 0,
         });
-        this.removeEnPassant();
-        this.addEnPassant(selp, i, j, sqs);
-      } //(at least) this 2 lines should be atomic (=>lock)
+
+        //
+      }
       this.setState({
         selectedPiece: null,
         selectedPiecei: null,
         selectedPiecej: null,
+        possibleMoves: [],
       });
     }
     else if(sqs[i][j] && sqs[i][j].player === this.state.playerTurn){ //select piece
@@ -61,11 +67,28 @@ export default class Game extends React.Component {
         selectedPiece: sqs[i][j],
         selectedPiecei: i,
         selectedPiecej: j,
+        possibleMoves: sqs[i][j].computeMoves(i, j, sqs),
       });
-      possibleMoves = sqs[i][j].computeMoves(i, j, sqs);
-      console.log(possibleMoves);
-      let test = [[1,1], [0,1]];
-      console.log([1,1] in test);
+      /* testing */
+      console.log(this.state.possibleMoves);
+/*       let test = [[1,1], [0,1]];
+      test.push(null);
+      console.log(test); */
+      /* */
+    }
+  }
+
+  removeEnPassantPiece(selp, destSquare) {
+    return selp.constructor.name==="Pawn" && !destSquare;
+  }
+
+  clearEnPassant(sqs) {
+    for(let i = 0; i < sqs.length ; ++i) {
+      for(let j = 0; j < sqs[i].length ; ++j) {
+        if(sqs[i][j] && sqs[i][j].constructor.name==="Pawn") {
+          sqs[i][j].enPassantMove = null;
+        }
+      }
     }
   }
 
@@ -78,8 +101,9 @@ export default class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board
-          squares = {this.state.squares}
-          possibleMoves = {possibleMoves}
+          squares = {this.state.squares.slice()}
+          selectedPiece = {[this.state.selectedPiecei, this.state.selectedPiecej]}
+          possibleMoves = {this.state.possibleMoves}
           onClick = {(i, j) => this.handleClick(i, j)}
           />
         </div>
@@ -117,36 +141,6 @@ export default class Game extends React.Component {
     }
 
     return initialBoard;
-  }
-
-  removeEnPassant() {
-    this.setState({
-      enPassantRight: null,
-      enPassantLeft: null,
-    });
-  }
-  
-  addEnPassant(lastPiecePlayed, desti, destj, board) {
-    if(lastPiecePlayed.constructor.name==="Pawn") {
-      console.log('passei');
-      this.setState({
-        enPassantRight: lastPiecePlayed.addEnPassantToOthers(desti, destj, board)[0], //[srci, srcj, desti, destj]
-        enPassantLeft: lastPiecePlayed.addEnPassantToOthers(desti, destj, board)[1],
-      });
-    }
-  }
-  
-  canEnPassant(srci, srcj, desti, destj, sqs) {
-    const enPR = this.state.enPassantRight;
-    const enPL = this.state.enPassantLeft;
-  
-    if(enPR && enPR[0]===srci && enPR[1]===srcj && enPR[2]===desti && enPR[3]===destj) {
-      return true;
-    }
-    if(enPL && enPL[0]===srci && enPL[1]===srcj && enPL[2]===desti && enPL[3]===destj) {
-      return true;
-    }
-    return false;
   }
 }
 

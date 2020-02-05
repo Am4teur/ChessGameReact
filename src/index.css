@@ -42,12 +42,16 @@ ol, ul {
   background: #666666;
 }
 
-.selected {
+.isSelected {
+  background: #80b3ff;
+}
+
+.isMove {
   border: 3px solid #0066ff;
 }
 
 /* .square:focus {
-  border: 3px solid #0066ff;
+  background: #80b3ff;
 } */
 
 .kbd-navigation .square:focus {

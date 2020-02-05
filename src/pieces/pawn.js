@@ -10,11 +10,16 @@ export default class Pawn extends Piece {
 
   canMove(srci, srcj, desti, destj, board) {
     const moves = this.computeMoves(srci, srcj, board);
+    const p = this.player===0 ? 1 : -1;
 
     //moves.includes([desti, destj]);
     //includes method doesnt work with arrays "cause reference" so another old school for to do the job
     for(let i = 0; i < moves.length; ++i) {
       if(moves[i][0]===desti && moves[i][1]===destj) {
+        if(srci+2*p === desti) {
+          this.enPassantMove = true;
+          console.log(this.enPassantMove);
+        }
         return true;
       }
     }
@@ -66,27 +71,26 @@ export default class Pawn extends Piece {
       }
     }
 
+    //Special Move "En Passant"
+    const enPassantMove = this.addEnPassantMove(srci, srcj, board);
+    if(enPassantMove) {
+      moves.push(enPassantMove);
+    }
+
     return moves;
   }
 
-  addEnPassantToOthers(desti, destj, board) {
+  addEnPassantMove(srci, srcj, board) {
     const boardCopy = board.slice();
-    let enPassantMoves = [];
-    let move = null;
+    const p = this.player === 0 ? 1 : -1;
 
-    const p = this.player===0 ? 1 : -1;
-
-    if(boardCopy[desti][destj+1]) { // && boardCopy[desti][destj+1].type == "Pawn"
-      move = [desti, destj+1, desti+p, destj-1];
+    if(boardCopy[srci][srcj+1] && boardCopy[srci][srcj+1].constructor.name==="Pawn" && boardCopy[srci][srcj+1].enPassantMove) {
+      return [srci+p, srcj+1];
     }
-    enPassantMoves.push(move);
-    move = null;
-
-    if(boardCopy[desti][destj-1]) {
-      move = [desti, destj+1, desti+p, destj+1];
+    if(boardCopy[srci][srcj-1] && boardCopy[srci][srcj-1].constructor.name==="Pawn" && boardCopy[srci][srcj-1].enPassantMove) {
+      return [srci+p, srcj-1];
     }
-    enPassantMoves.push(move);
 
-    return enPassantMoves;
+    return null;
   }
 }
