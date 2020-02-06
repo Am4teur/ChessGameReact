@@ -4,6 +4,7 @@ export default class Rook extends Piece {
   constructor(player) {
     super(player, (player === 0 ? "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg"
                                 : "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg"));
+    this.firstMove = true;
   }
 
   canMove(srci, srcj, desti, destj, board) {
@@ -52,7 +53,7 @@ export default class Rook extends Piece {
     for(let i = 1; i < srcj+1 ; ++i) {
       if(boardCopy[srci][srcj-i]) {
         if(boardCopy[srci][srcj-i].player !== boardCopy[srci][srcj].player) {
-          moves.push([srci, srcj+i]);
+          moves.push([srci, srcj-i]);
         }
         break;
       }

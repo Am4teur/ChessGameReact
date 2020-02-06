@@ -52,7 +52,7 @@ export default class Queen extends Piece {
     for(let i = 1; i < srcj+1 ; ++i) {
       if(boardCopy[srci][srcj-i]) {
         if(boardCopy[srci][srcj-i].player !== boardCopy[srci][srcj].player) {
-          moves.push([srci, srcj+i]);
+          moves.push([srci, srcj-i]);
         }
         break;
       }

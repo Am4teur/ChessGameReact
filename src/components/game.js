@@ -38,14 +38,31 @@ export default class Game extends React.Component {
     if(selp) { //do something with piece selected
       this.clearEnPassant(sqs);
       if(selp.canMove(seli, selj, i, j, sqs)) {
-        const sqfull = sqs[i][j] ? true : false;
+        const sqFull = sqs[i][j] ? true : false;
         sqs[i][j] = sqs[seli][selj]; //(at least) this 2 lines should be atomic (=>lock)
         sqs[seli][selj] = null;      //(at least) this 2 lines should be atomic (=>lock)
 
+        /* Begin of "En Passant" Move */
         const p = this.state.playerTurn===0 ? -1 : 1;
-        if(this.removeEnPassantPiece(selp, sqfull, sqs)) {
+        if(this.removeEnPassantPiece(selp, sqFull, sqs)) {
           sqs[i+p][j] = null;
         }
+        /* End of "En Passant" Move */
+        /* Begin of "Swap King" Move */
+        if((selp.constructor.name === "King" || selp.constructor.name === "Rook") && selp.firstMove === true) {
+          if(this.isSwapKingMove(selp, selj, j)) {
+            if(selj+2 === j) {
+              sqs[seli][selj+1] = sqs[seli][7];
+              sqs[seli][7] = null;
+            }
+            else {
+              sqs[seli][selj-1] = sqs[seli][0];
+              sqs[seli][0] = null;
+            }
+          }
+          selp.firstMove = false;
+        }
+        /* Begin of "Swap King" Move */
 
         this.setState({
           squares: sqs,
@@ -70,15 +87,15 @@ export default class Game extends React.Component {
       });
       /* testing */
       console.log(sqs[i][j].computeMoves(i, j, sqs));
-/*       let test = [[1,1], [0,1]];
-      test.push(null);
-      console.log(test); */
-      /* */
     }
   }
 
   removeEnPassantPiece(selp, destSquare) {
     return selp.constructor.name==="Pawn" && !destSquare;
+  }
+
+  isSwapKingMove(selp, srcj, destj) {
+    return selp.constructor.name === "King" && (srcj+2 === destj || srcj-2 === destj);
   }
 
   clearEnPassant(sqs) {
@@ -117,26 +134,26 @@ export default class Game extends React.Component {
   initBoard() {
     let initialBoard = matrix(NROWS, NCOLS, null);
 
-    initialBoard[0][0] = new Rook(0); //"Rook";
-    initialBoard[7][0] = new Rook(1); //"Rook";
-    initialBoard[0][7] = new Rook(0); //"Rook";
-    initialBoard[7][7] = new Rook(1); //"Rook";
-    initialBoard[0][1] = new Knight(0); //"Knight";
-    initialBoard[0][6] = new Knight(0); //"Knight";
-    initialBoard[7][1] = new Knight(1); //"Knight";
-    initialBoard[7][6] = new Knight(1); //"Knight";
-    initialBoard[0][2] = new Bishop(0); //"Bishop";
-    initialBoard[0][5] = new Bishop(0); //"Bishop";
-    initialBoard[7][2] = new Bishop(1); //"Bishop";
-    initialBoard[7][5] = new Bishop(1); //"Bishop";
-    initialBoard[0][3] = new Queen(0); //"Queen";
-    initialBoard[0][4] = new King(0); //"King";
-    initialBoard[7][3] = new Queen(1); //"Queen";
-    initialBoard[7][4] = new King(1); //"King";
+    initialBoard[0][0] = new Rook(0);
+    initialBoard[0][7] = new Rook(0);
+    initialBoard[7][0] = new Rook(1);
+    initialBoard[7][7] = new Rook(1);
+    initialBoard[0][1] = new Knight(0);
+    initialBoard[0][6] = new Knight(0);
+    initialBoard[7][1] = new Knight(1);
+    initialBoard[7][6] = new Knight(1);
+    initialBoard[0][2] = new Bishop(0);
+    initialBoard[0][5] = new Bishop(0);
+    initialBoard[7][2] = new Bishop(1);
+    initialBoard[7][5] = new Bishop(1);
+    initialBoard[0][3] = new Queen(0);
+    initialBoard[0][4] = new King(0);
+    initialBoard[7][3] = new Queen(1);
+    initialBoard[7][4] = new King(1);
 
     for(let i = 0; i < initialBoard[0].length ; ++i) {
-      initialBoard[1][i] = new Pawn(0); //"Pawn";
-      initialBoard[6][i] = new Pawn(1); //"Pawn";
+      initialBoard[1][i] = new Pawn(0);
+      initialBoard[6][i] = new Pawn(1);
     }
 
     return initialBoard;
@@ -158,3 +175,21 @@ function matrix(rows, cols, defaultValue){
   }
   return arr;
 }
+
+/* 
+initialBoard[0][0] = new Rook(0);
+initialBoard[7][0] = new Rook(1);
+initialBoard[0][7] = new Rook(0);
+initialBoard[7][7] = new Rook(1);
+initialBoard[0][1] = new Knight(0);
+initialBoard[0][6] = new Knight(0);
+initialBoard[7][1] = new Knight(1);
+initialBoard[7][6] = new Knight(1);
+initialBoard[0][2] = new Bishop(0);
+initialBoard[0][5] = new Bishop(0);
+initialBoard[7][2] = new Bishop(1);
+initialBoard[7][5] = new Bishop(1);
+initialBoard[0][3] = new Queen(0);
+initialBoard[0][4] = new King(0);
+initialBoard[7][3] = new Queen(1);
+initialBoard[7][4] = new King(1); */

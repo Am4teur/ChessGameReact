@@ -18,7 +18,6 @@ export default class Pawn extends Piece {
       if(moves[i][0]===desti && moves[i][1]===destj) {
         if(srci+2*p === desti) {
           this.enPassantMove = true;
-          console.log(this.enPassantMove);
         }
         return true;
       }

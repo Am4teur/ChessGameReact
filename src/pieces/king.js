@@ -4,6 +4,7 @@ export default class King extends Piece {
   constructor(player){
     super(player, (player === 0 ? "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg"
                                 : "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg"));
+    this.firstMove = true;
   }
 
   canMove(srci, srcj, desti, destj, board) {
@@ -42,6 +43,20 @@ export default class King extends Piece {
           i--;
           break;
         }
+      }
+    }
+
+    //Special Move (swap between queen and rooks)
+    if(this.firstMove) {
+      if(!board[srci][srcj+1] && !board[srci][srcj+2] &&
+         board[srci][srcj+3].constructor.name === "Rook" && board[srci][srcj+3].firstMove) {
+        
+        moves.push([srci, srcj+2]);
+      }
+      if(!board[srci][srcj-1] && !board[srci][srcj-2] && !board[srci][srcj-3] &&
+         board[srci][srcj-4].constructor.name === "Rook" && board[srci][srcj-4].firstMove) {
+  
+        moves.push([srci, srcj-2]);
       }
     }
 
