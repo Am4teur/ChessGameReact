@@ -53,7 +53,6 @@ export default class Game extends React.Component {
           playerTurn: this.state.playerTurn === 0 ? 1 : 0,
         });
 
-        //
       }
       this.setState({
         selectedPiece: null,
@@ -70,7 +69,7 @@ export default class Game extends React.Component {
         possibleMoves: sqs[i][j].computeMoves(i, j, sqs),
       });
       /* testing */
-      console.log(this.state.possibleMoves);
+      console.log(sqs[i][j].computeMoves(i, j, sqs));
 /*       let test = [[1,1], [0,1]];
       test.push(null);
       console.log(test); */
