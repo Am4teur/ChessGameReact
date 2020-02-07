@@ -16,9 +16,9 @@ export default class Pawn extends Piece {
     //includes method doesnt work with arrays "cause reference" so another old school for to do the job
     for(let i = 0; i < moves.length; ++i) {
       if(moves[i][0]===desti && moves[i][1]===destj) {
-        if(srci+2*p === desti) {
+/*      if(srci+2*p === desti) {
           this.enPassantMove = true;
-        }
+        } This part is done in the game (problably it shoudn't) */
         return true;
       }
     }

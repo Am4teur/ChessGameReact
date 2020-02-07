@@ -36,7 +36,6 @@ export default class Game extends React.Component {
     const selj = this.state.selectedPiecej;
 
     if(selp) { //do something with piece selected
-      this.clearEnPassant(sqs);
       if(selp.canMove(seli, selj, i, j, sqs)) {
         const sqFull = sqs[i][j] ? true : false;
         sqs[i][j] = sqs[seli][selj]; //(at least) this 2 lines should be atomic (=>lock)
@@ -44,9 +43,11 @@ export default class Game extends React.Component {
 
         /* Begin of "En Passant" Move */
         const p = this.state.playerTurn===0 ? -1 : 1;
-        if(this.removeEnPassantPiece(selp, sqFull, sqs)) {
+        if(this.removeEnPassantPiece(selp, sqFull)) {
           sqs[i+p][j] = null;
         }
+        this.clearEnPassant(sqs);
+        this.setEnPassant(selp, seli, i);
         /* End of "En Passant" Move */
         /* Begin of "Swap King" Move */
         if((selp.constructor.name === "King" || selp.constructor.name === "Rook") && selp.firstMove === true) {
@@ -62,7 +63,13 @@ export default class Game extends React.Component {
           }
           selp.firstMove = false;
         }
-        /* Begin of "Swap King" Move */
+        /* End of "Swap King" Move */
+        /* Begin of "Pawn at the end" Move */
+        if(selp.constructor.name === "Pawn" && (i===7 || i ===0)) {
+          // pedir input ao user
+          sqs[i][j] = new Queen(this.state.playerTurn);
+        }
+        /* End of "Pawn at the end" Move */
 
         this.setState({
           squares: sqs,
@@ -94,8 +101,14 @@ export default class Game extends React.Component {
     return selp.constructor.name==="Pawn" && !destSquare;
   }
 
+  setEnPassant(selp, srci, desti) {
+    if(selp.constructor.name==="Pawn" && (srci+2 === desti || srci-2 === desti)) {
+      selp.enPassantMove = true;
+    }
+  }
+
   isSwapKingMove(selp, srcj, destj) {
-    return selp.constructor.name === "King" && (srcj+2 === destj || srcj-2 === destj);
+    return selp.constructor.name==="King" && (srcj+2 === destj || srcj-2 === destj);
   }
 
   clearEnPassant(sqs) {
