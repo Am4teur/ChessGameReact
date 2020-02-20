@@ -18,19 +18,25 @@ export default class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      squares: this.initBoard(),
+      history: [{
+        squares: this.initBoard(),
+      }],
       turn: 0,
       playerTurn: 0,  //could be derived from this.state.turn but its more readable like this
       selectedPiece: null,
       selectedPiecei: null,
       selectedPiecej: null,
       possibleMoves: [],
+      check: null,
     };
   }
 
   handleClick(i, j) {
     //select new peace OR make a move with a selected pice
-    let sqs = this.state.squares.slice();
+    const history = this.state.history.slice(0, this.state.turn + 1);;
+    const current = history[history.length - 1];
+    let sqs = current.squares.slice();
+
     const selp = this.state.selectedPiece;
     const seli = this.state.selectedPiecei;
     const selj = this.state.selectedPiecej;
@@ -42,9 +48,9 @@ export default class Game extends React.Component {
         sqs[seli][selj] = null;      //(at least) this 2 lines should be atomic (=>lock)
 
         /* Begin of "En Passant" Move */
-        const p = this.state.playerTurn===0 ? -1 : 1;
+        const p = this.state.playerTurn === 0 ? -1 : 1;
         if(this.removeEnPassantPiece(selp, sqFull)) {
-          sqs[i+p][j] = null;
+          sqs[i + p][j] = null;
         }
         this.clearEnPassant(sqs);
         this.setEnPassant(selp, seli, i);
@@ -52,12 +58,12 @@ export default class Game extends React.Component {
         /* Begin of "Swap King" Move */
         if((selp.constructor.name === "King" || selp.constructor.name === "Rook") && selp.firstMove === true) {
           if(this.isSwapKingMove(selp, selj, j)) {
-            if(selj+2 === j) {
-              sqs[seli][selj+1] = sqs[seli][7];
+            if(selj + 2 === j) {
+              sqs[seli][selj + 1] = sqs[seli][7];
               sqs[seli][7] = null;
             }
             else {
-              sqs[seli][selj-1] = sqs[seli][0];
+              sqs[seli][selj - 1] = sqs[seli][0];
               sqs[seli][0] = null;
             }
           }
@@ -72,12 +78,15 @@ export default class Game extends React.Component {
         /* End of "Pawn at the end" Move */
 
         this.setState({
-          squares: sqs,
-          turn: this.state.turn+1,
+          history: history.concat([{
+            squares: sqs,
+          }]),
+          turn: history.length,
           playerTurn: this.state.playerTurn === 0 ? 1 : 0,
+          check: this.check(),
         });
-
       }
+
       this.setState({
         selectedPiece: null,
         selectedPiecei: null,
@@ -93,22 +102,12 @@ export default class Game extends React.Component {
         possibleMoves: sqs[i][j].computeMoves(i, j, sqs),
       });
       /* testing */
-      console.log(sqs[i][j].computeMoves(i, j, sqs));
+      //console.log(sqs[i][j].computeMoves(i, j, sqs));
     }
   }
 
   removeEnPassantPiece(selp, destSquare) {
-    return selp.constructor.name==="Pawn" && !destSquare;
-  }
-
-  setEnPassant(selp, srci, desti) {
-    if(selp.constructor.name==="Pawn" && (srci+2 === desti || srci-2 === desti)) {
-      selp.enPassantMove = true;
-    }
-  }
-
-  isSwapKingMove(selp, srcj, destj) {
-    return selp.constructor.name==="King" && (srcj+2 === destj || srcj-2 === destj);
+    return selp.constructor.name === "Pawn" && !destSquare;
   }
 
   clearEnPassant(sqs) {
@@ -121,16 +120,49 @@ export default class Game extends React.Component {
     }
   }
 
+  setEnPassant(selp, srci, desti) {
+    if(selp.constructor.name === "Pawn" && (srci + 2 === desti || srci - 2 === desti)) {
+      selp.enPassantMove = true;
+    }
+  }
+
+  isSwapKingMove(selp, srcj, destj) {
+    return selp.constructor.name === "King" && (srcj + 2 === destj || srcj - 2 === destj);
+  }
+
+  check() {
+
+  }
+
+  jumpTo(step) {
+    this.setState({
+      turn: step,
+      playerTurn: step % 2 === 0 ? 0 : 1,
+    });
+  }
+
+
   render() {
-    //const squares = this.state.squares.slice();
+    const history = this.state.history;
+    const current = history[this.state.turn];
     let status = "Next player: " + this.state.playerTurn;
-    const moves = "No moves";
+
+    const moves = history.map((step, move) => {
+      const desc = move ?
+        'Go to move #' + move :
+        'Go to game start';
+      return (
+        <li key={move}>
+          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        </li>
+      );
+    });
 
     return (
       <div className="game">
         <div className="game-board">
           <Board
-          squares = {this.state.squares.slice()}
+          squares = {current.squares}
           selectedPiece = {[this.state.selectedPiecei, this.state.selectedPiecej]}
           possibleMoves = {this.state.possibleMoves}
           onClick = {(i, j) => this.handleClick(i, j)}
@@ -179,10 +211,10 @@ export default class Game extends React.Component {
 
 function matrix(rows, cols, defaultValue){
   var arr = [];
-  for(var i=0; i < rows; i++){
+  for(var i = 0; i < rows; i++){
       arr.push([]);
       arr[i].push( new Array(cols));
-      for(var j=0; j < cols; j++){
+      for(var j = 0; j < cols; j++){
         arr[i][j] = defaultValue;
       }
   }
